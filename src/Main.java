@@ -37,11 +37,67 @@ public class Main {
 			while (true) {
 				line = reader.readLine();
 				System.out.println("Read line: " + line);
+				//printLine(line);
 				handleLine(line, ip);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+	
+	static void printLine(String line) {		
+		byte[] b = line.getBytes();
+		if (b.length > 0) {
+			int offset = b[0] & 0xF0;
+			if (b.length > 2) {
+				//IMU
+				if (b.length > 14) {
+					if (b[0] == 0xF0) {
+						int acx = (b[1] << 8) + b [2];
+						int acy = (b[3] << 8) + b [4];
+						int acz = (b[5] << 8) + b [6];
+						int tmp = (b[7] << 8) + b [8];
+						int gyx = (b[9] << 8) + b [10];
+						int gyy = (b[11] << 8) + b [12];
+						int gyz = (b[13] << 8) + b [14];
+						System.out.println("IMU:\t "+ 
+								" AcX: " + acx + 
+								" AcY: " + acy + 
+								" AcZ: " + acz + 
+								" TMP: " + tmp +
+								" GyX: " + gyx +
+								" GyY: " + gyy +
+								" GyZ: " + gyz);
+					}
+				}
+			} else if (b.length == 2) {
+				int a = (b[0] & 0x0F) << 4;
+				int value = a + b[1];
+				
+				//SensorType
+				switch (offset) {
+				case 0x00:
+					System.out.println(value + " -" + "Temperature");
+					break;
+				case 0x01:
+					System.out.println(value + " -" + "Photo");
+					break;
+				case 0x02:
+					System.out.println(value + " -" + "Depth");
+					break;
+				case 0x03:
+					System.out.println(value + " -" + "Con");
+					break;
+				case 0x04:
+					System.out.println(value + " -" + "Barrery");
+					break;
+				default:
+					System.out.println("Unknown Sensor!");
+				}
+			} else {
+				System.out.println("Bad length of measurement");
+			}
 		}
 	}
 	
